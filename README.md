@@ -54,6 +54,7 @@ Gain clarification on the business use cases, compliance, security needs, etc
 - what is expected load
 - bulk up general validation - add more zod refinements that cover edge cases for input, check mock for validation of PolicyId being real, etc
 - make tests reusable with loops
+- add meaningful error message on zod vs defaults
 - determine if validations can expand into meaningful groups; if so then cascade
 - determine auditing needs
 - is real-time single request even a use case
