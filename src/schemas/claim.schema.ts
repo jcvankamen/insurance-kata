@@ -14,4 +14,6 @@ export const claimSchema = z
     ),
     amountClaimed: z.number().positive(),
   })
-  .describe("claimSchema to be used for validating incomuing claims data.");
+  .describe("claimSchema to be used for validating incoming claims data");
+
+export type ClaimRequest = z.infer<typeof claimSchema>;
