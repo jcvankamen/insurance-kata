@@ -5,7 +5,7 @@ describe("Claim Schema Base Validation", () => {
   const validClaim = {
     policyId: "123456",
     incidentType: "Accident",
-    incidentDate: new Date("2023-01-01"),
+    incidentDate: "2023-01-01",
     amountClaimed: 1000,
   };
 
@@ -71,17 +71,48 @@ describe("Claim Schema Base Validation", () => {
   });
 
   describe("incidentDate", () => {
-    it("should reject a claim object when incidentDate is not a date", () => {
-      const invalidClaim = { ...validClaim, incidentDate: "2023-01-01" };
+    it("should parse a valid YYYY-MM-DD string as a Date", () => {
+      const claimWithDateString = {
+        ...validClaim,
+        incidentDate: "2023-01-01",
+      };
+      const result = claimSchema.safeParse(claimWithDateString);
+
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.incidentDate).toBeInstanceOf(Date);
+        expect(result.data.incidentDate.toISOString()).toBe(
+          "2023-01-01T00:00:00.000Z",
+        );
+      }
+    });
+
+    it.each(["2023-1-1", "2023-01-01T00:00:00.000Z", "2023-02-29"])(
+      "should reject a date string that is not a valid YYYY-MM-DD date: %s",
+      (incidentDate) => {
+        const invalidClaim = { ...validClaim, incidentDate };
+        const result = claimSchema.safeParse(invalidClaim);
+        expect(result.success).toBe(false);
+      },
+    );
+
+    it("should reject an invalid date string", () => {
+      const invalidClaim = { ...validClaim, incidentDate: "not-a-date" };
       const result = claimSchema.safeParse(invalidClaim);
       expect(result.success).toBe(false);
     });
 
-    it("should reject a claim object when incidentDate is an invalid date", () => {
+    it("should reject a Date object instead of a date string", () => {
       const invalidClaim = {
         ...validClaim,
-        incidentDate: new Date("invalid-date"),
+        incidentDate: new Date("2023-01-01"),
       };
+      const result = claimSchema.safeParse(invalidClaim);
+      expect(result.success).toBe(false);
+    });
+
+    it("should reject a number instead of a date string", () => {
+      const invalidClaim = { ...validClaim, incidentDate: 0 };
       const result = claimSchema.safeParse(invalidClaim);
       expect(result.success).toBe(false);
     });
@@ -101,7 +132,12 @@ describe("Claim Schema Base Validation", () => {
     it("should reject a claim object when incidentDate is in the future", () => {
       const futureDate = new Date();
       futureDate.setFullYear(futureDate.getFullYear() + 1);
-      const invalidClaim = { ...validClaim, incidentDate: futureDate };
+      const futureDateString = [
+        futureDate.getFullYear(),
+        String(futureDate.getMonth() + 1).padStart(2, "0"),
+        String(futureDate.getDate()).padStart(2, "0"),
+      ].join("-");
+      const invalidClaim = { ...validClaim, incidentDate: futureDateString };
       const result = claimSchema.safeParse(invalidClaim);
       expect(result.success).toBe(false);
     });
