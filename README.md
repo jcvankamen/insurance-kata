@@ -1,76 +1,92 @@
-# insurance-kata
+# Insurance Kata
 
 ## Getting Started
 
-Assumes following versions are installed on machine
-Node.js v24.22.1
-Npm 11.19.1
+The project assumes Node.js v24.22.1 and npm 11.19.1 are installed.
 
-Default port is 3000; if port is already in use change .env to target any other open port
+The server uses port `3000` by default. If that port is already in use, update
+the port in `.env`.
 
-run following commands in terminal at folder root
+From the project root, install the dependencies and start the development
+server:
 
-`npm install`
-`npm run dev`
+```sh
+npm install
+npm run dev
+```
 
-To run tests
+Run the tests with:
 
-`npm run test`
+```sh
+npm test
+```
 
-# THOUGHT PROCESS
+## Thought Process
 
-Included below are high level thought processes that I had after reading the basic insurance kata problem
+These are high-level thoughts and assumptions after reading the basic insurance
+kata problem. They may change as the business requirements become clearer.
 
-## Decisions
+### Decisions
 
-### Architectural
+#### Architecture
 
-- Implementation will revolve around minimal API endpoint using Express
-- Testing will utilize supertest and vitest given ease of setup
-- The app will focus on individual real-time submission and feedback for the consumer using POST w/ 200 success, applicable 400s etc (see below).
-- Input and business validation will progress over time in order to get a generic thin slice working
-- Formatting will be applied by default Prettier settings
+- Keep the implementation focused on a minimal API endpoint using Express.
+- Use Supertest and Vitest for testing, given their ease of setup.
+- Start with an individual, real-time submission and provide feedback to the
+  consumer. Use `POST`, with `200` for success and appropriate `400` responses
+  for invalid requests.
+- Build a thin slice first, then expand input and business validation over
+  time.
+- Use the default Prettier formatting.
 
-### Generic Validations
+#### General Validation
 
-- Dates should use common format of yyyy-mm-dd
-- Business Validation will not cascade, order in theory would be defined based on either business requirements or necessary processing
-- Is policy active
-- Is incident covered
+- Use the common `yyyy-mm-dd` format for dates.
+- Do not cascade business validations initially. Their order can be based on
+  business requirements or processing needs.
+- Check whether the policy is active and whether the incident is covered.
 
-### Business Rules
+#### Business Rules
 
-- Policy Id will be assumed a string max of 6 based on test data; in a true build this would be looked up through a system to make sure valid
-- Incident type matching will be case sensitive on first iterations, later impelment santization for flexibility
-- Processing of claim should be inclusive of the policy start and end dates.
-- If the calculated payout is zero, it is considered 'Approved' vs 'Rejected' until there clarification is available
+- Assume the policy ID is a string with a maximum length of six characters,
+  based on the test data. In a real system, its validity would likely be crosschecked against some sort of typestore
+- Start with case-sensitive incident type matching; consider normalization
+  later if more flexibility is needed.
+- Include both the policy start date and end date when checking coverage.
+- Treat a payout of zero as `Approved` until the business rule is clarified.
 
-### Additional Considerations & Future Implementations
+### Open Questions and Future Considerations
 
-Gain clarification on the business use cases, compliance, security needs, etc
+Clarify the business use cases, compliance expectations, and security needs.
+Some questions to explore:
 
-- figure out auth/security needs around who can access and who can execute, is there policy level access considerations, how is api hosted/is it behind apim etc
-- idempotency, are exact duplicate requests allowable, max claims per policy in a certain amount of time, etc?
-- what is expected load
-- bulk up general validation - add more zod refinements that cover edge cases for input, check mock for validation of PolicyId being real, etc
-- make tests reusable with loops
-- add meaningful error message on zod vs defaults
-- determine if validations can expand into meaningful groups; if so then cascade
-- determine auditing needs
-- is real-time single request even a use case
-- is real-time multiple request as a use case
-- is timed batch process as a use case
-- if timed batch process are there multiple publishers or how is the data consumed it a flat file etc
-- batch processing do you continue on when there is a failure
+- Who can access or submit claims? Is access controlled at the policy level?
+  How will the API be hosted, and will it be behind an API management layer?
+- Are duplicate requests allowed? Are there limits on claims per policy or
+  within a period of time?
+- What request volume is expected?
+- What additional validation is needed, including checking whether a policy ID
+  is valid? Should validation errors have more meaningful messages?
+- Can validations be grouped, and should any of them cascade?
+- What are the auditing requirements?
+- Is the use case a single real-time request, multiple real-time requests, a
+  scheduled batch, or some combination?
+- If batch processing is needed, how is data provided, and should processing
+  continue when an individual claim fails?
+- Can tests be made more reusable?
 
-### Initial Implementation Points
+### Initial Implementation Approach
 
-1. boiler plate endpoints
-2. request structure
-3. response structure
-4. basic computations
-5. enhanced validations
+1. Create the basic endpoints.
+2. Define the request structure.
+3. Define the response structure.
+4. Add basic computations.
+5. Improve validation.
 
-### Reflections
+### Reflection
 
-Placeholder for reflections
+The kata examples were in TypeScript, so I chose to use it even though most of
+my experience is building C#/.NET backend applications. I underestimated what
+I could accomplish in about 90 minutes. I spent a lot of time thinking through
+the approach and probably did not need to go so far down the rabbit hole. I
+also tried to avoid AI entirely, but used some as the work progressed.
