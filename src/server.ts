@@ -1,6 +1,7 @@
 ﻿import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
+import { claimSchema } from "./schemas/claim.schema";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,6 +14,12 @@ app.get("/api/healthcheck", (_req, res) => {
 });
 
 app.post("/api/claims", (req, res) => {
+  const result = claimSchema.safeParse(req.body);
+
+  if (!result.success) {
+    return res.status(400).json({ errors: result.error });
+  }
+
   res.set("Cache-Control", "no-store"); // Prevent 304 and hard load
   res.status(200).json({ data: req.body, result: "Data recieved!" });
 });
